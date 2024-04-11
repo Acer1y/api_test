@@ -14,50 +14,7 @@
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
     let message = []
 
-    function sendMessage(prompt) {
-        
-        const xhr = new XMLHttpRequest()
-        xhr.open('POST', url, false)
-        xhr.setRequestHeader('Content-Type', 'application/json')
-        const chatHistory = message.map(msg => msg.request.contents[0].parts[0].text)
 
-        const requestData = {
-            "contents": [
-                {"role": "user",
-                    "parts":  [{
-                        "text": chatHistory.join(' ') + ' ' + prompt }]
-            }]
-        }
-        
-
-        xhr.send(JSON.stringify(requestData))
-
-        if (xhr.status === 200){
-            response = JSON.parse(xhr.responseText)
-
-            const messageObj = {
-                request: requestData,
-                response: response.candidates[0].content.parts[0].text
-            }
-
-            message.push(messageObj)
-
-            document.getElementById('response').innerHTML = messageObj.response.replace(/\n/g, '<br>')
-
-
-            /*
-            old
-            messageHistory = JSON.stringify(response.candidates[0].content)
-            message.push(messageHistory)
-            console.log(response.candidates[0].contents)
-            */
-            
-
-        } else {
-            console.log('error')
-            console.log(requestData)
-        }
-    }
 
 </script>
 </html>
