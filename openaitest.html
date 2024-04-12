@@ -7,14 +7,151 @@
 </head>
 <body>
     <div class="response" id="response"></div>
+        <form id="submitForm">
+            <input type="text" name="textfield" id="textfield">
+            <input type="submit" value="submit" id="submit">
+        </form>
+    
 </body>
 <script>
     let response = ''
     const apiKey = 'AIzaSyDsXFh_XktoxcEvAOYFTWlv5H17VMdNj9A'
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
-    let message = []
+    let message = {}
+    let responseMessage = {}
+
+    const submitForm = document.getElementById('submitForm')
+
+    submitForm.addEventListener("submit", (event) => {
+        event.preventDefault()
+        text = event.target[0].value //Extract the text value inside the event
+
+        sendMessage(text)
 
 
+    })
+
+    function sendMessage(text) {
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', url, false)
+        xhr.setRequestHeader('Content-Type', 'application/json')
+
+
+        console.log(responseMessage)
+        
+        if (Object.values(responseMessage).length === 0) {
+            message = {
+                "contents": [
+                    {"role": "user",
+                        "parts":  [{
+                            "text": text }]
+                }]
+            }
+        } else {
+            newMessage = {
+                "contents": [
+                    {"role": "user",
+                        "parts":  [{
+                            "text": text }]
+                }]
+            }
+            
+            message = {
+                "contents": [
+                    ...responseMessage.contents,
+                    ...newMessage.contents
+                ]
+            }
+
+            responseMessage
+            console.log(message)
+        } 
+
+        xhr.send(JSON.stringify(message))
+
+        if (xhr.status === 200) {
+            response = JSON.parse(xhr.responseText)
+
+            document.getElementById('response').innerHTML = response.candidates[0].content.parts[0].text
+            //console.log(response)
+
+            responseMessage = {
+                "contents": [
+                    ...message.contents,
+                    response.candidates[0].content 
+                    
+                ]
+            }
+            console.log(responseMessage)
+        } else {
+            console.log(xhr)
+        }
+
+
+
+    }
+
+    
+        /* old testing data
+        //Test request message
+        requestMessage = {
+            "contents": [
+                {"role": "user",
+                    "parts":  [{
+                        "text": text }]
+            }]
+        }
+
+        newRequestMessage = {
+            "contents": [
+                {"role": "model",
+                    "parts":  [{
+                        "text": "form was submitted" }]
+            }]
+        }
+
+        message = {
+            "contents": [
+                ...requestMessage.contents, 
+                ...newRequestMessage.contents
+            ]
+        } 
+
+        console.log(requestMessage)
+        console.log(newRequestMessage)
+        console.log(message)
+        */
+
+    
+        /* old testing data
+        //Test request message
+        requestMessage = {
+            "contents": [
+                {"role": "user",
+                    "parts":  [{
+                        "text": text }]
+            }]
+        }
+
+        newRequestMessage = {
+            "contents": [
+                {"role": "model",
+                    "parts":  [{
+                        "text": "form was submitted" }]
+            }]
+        }
+
+        message = {
+            "contents": [
+                ...requestMessage.contents, 
+                ...newRequestMessage.contents
+            ]
+        } 
+
+        console.log(requestMessage)
+        console.log(newRequestMessage)
+        console.log(message)
+        */
 
 </script>
 </html>
