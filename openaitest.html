@@ -11,14 +11,21 @@
             <input type="text" name="textfield" id="textfield">
             <input type="submit" value="submit" id="submit">
         </form>
+    <div class="instructions">
+        <h1>Instuctions:</h1>
+        <p>This is an interactive game, simply tell the AI what you would like to do and it will make play along.</p></div>
     
 </body>
 <script>
     let response = ''
-    const apiKey = 'AIzaSyDsXFh_XktoxcEvAOYFTWlv5H17VMdNj9A'
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
+    //const googleApiKey = 'AIzaSyDsXFh_XktoxcEvAOYFTWlv5H17VMdNj9A' Google AI
+    //const googleUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`
+    const gptApi = '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'
+    const url = 'https://api.openai.com/v1/chat/completions'
     let message = {}
     let responseMessage = {}
+
+    //sendMessage('Generate an apocalyptic survival scenario. The objective is to gather what is needed to survive, the player must eat 3 meals a day and stay warm. The standard seasons apply, and you can randomly generate weather on any day. The game starts with the player waking up, and player must decide what to do. Provide a random name and backstory for the player. There are no limits and nothing is gamebreaking.')
 
     const submitForm = document.getElementById('submitForm')
 
@@ -34,6 +41,7 @@
     function sendMessage(text) {
         const xhr = new XMLHttpRequest()
         xhr.open('POST', url, false)
+        xhr.setRequestHeader(`Authorization`, `Bearer ${gptApi}`)
         xhr.setRequestHeader('Content-Type', 'application/json')
 
 
@@ -41,25 +49,30 @@
         
         if (Object.values(responseMessage).length === 0) {
             message = {
-                "contents": [
-                    {"role": "user",
-                        "parts":  [{
-                            "text": text }]
-                }]
+                "model": "gpt-3.5-turbo",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": text 
+                    }
+                ]
             }
         } else {
             newMessage = {
-                "contents": [
-                    {"role": "user",
-                        "parts":  [{
-                            "text": text }]
-                }]
+                "model": "gpt-3.5-turbo",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": text 
+                    }
+                ]
             }
             
             message = {
-                "contents": [
-                    ...responseMessage.contents,
-                    ...newMessage.contents
+                "model": "gpt-3.5-turbo",
+                "messages": [
+                    ...responseMessage.messages,
+                    ...newMessage.messages
                 ]
             }
 
@@ -71,15 +84,18 @@
 
         if (xhr.status === 200) {
             response = JSON.parse(xhr.responseText)
+            console.log(response)
 
-            document.getElementById('response').innerHTML = response.candidates[0].content.parts[0].text
+            const textWithLineBreaks = response.choices[0].message.content.replace(/\n/g, '<br>');
+            document.getElementById('response').innerHTML = textWithLineBreaks;
+
+
             //console.log(response)
 
             responseMessage = {
-                "contents": [
-                    ...message.contents,
-                    response.candidates[0].content 
-                    
+                "messages": [
+                    ...message.messages,
+                    response.choices[0].message
                 ]
             }
             console.log(responseMessage)
@@ -91,67 +107,7 @@
 
     }
 
-    
-        /* old testing data
-        //Test request message
-        requestMessage = {
-            "contents": [
-                {"role": "user",
-                    "parts":  [{
-                        "text": text }]
-            }]
-        }
-
-        newRequestMessage = {
-            "contents": [
-                {"role": "model",
-                    "parts":  [{
-                        "text": "form was submitted" }]
-            }]
-        }
-
-        message = {
-            "contents": [
-                ...requestMessage.contents, 
-                ...newRequestMessage.contents
-            ]
-        } 
-
-        console.log(requestMessage)
-        console.log(newRequestMessage)
-        console.log(message)
-        */
-
-    
-        /* old testing data
-        //Test request message
-        requestMessage = {
-            "contents": [
-                {"role": "user",
-                    "parts":  [{
-                        "text": text }]
-            }]
-        }
-
-        newRequestMessage = {
-            "contents": [
-                {"role": "model",
-                    "parts":  [{
-                        "text": "form was submitted" }]
-            }]
-        }
-
-        message = {
-            "contents": [
-                ...requestMessage.contents, 
-                ...newRequestMessage.contents
-            ]
-        } 
-
-        console.log(requestMessage)
-        console.log(newRequestMessage)
-        console.log(message)
-        */
+ 
 
 </script>
 </html>
